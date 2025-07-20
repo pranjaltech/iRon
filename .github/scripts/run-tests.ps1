@@ -14,10 +14,14 @@ if (-not (Test-Path $Executable)) {
 }
 
 # Helper function using PrintWindow to capture overlay window
-# System.Drawing.Common needs to be referenced explicitly when compiling
-# the C# helper on PowerShell 7.
-Add-Type -AssemblyName System.Drawing.Common
-Add-Type -ReferencedAssemblies System.Drawing.Common -Language CSharp @"
+# PowerShell 7 does not automatically reference System.Drawing.Common when
+# compiling inline C#. Resolve the DLL path explicitly so Add-Type can find it.
+$drawingDll = Join-Path (Split-Path (Get-Command pwsh).Source) 'System.Drawing.Common.dll'
+if (-not (Test-Path $drawingDll)) {
+    $drawingDll = Join-Path ([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()) 'System.Drawing.Common.dll'
+}
+Add-Type -Path $drawingDll
+Add-Type -ReferencedAssemblies $drawingDll -Language CSharp @"
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
