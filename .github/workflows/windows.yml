@@ -20,8 +20,8 @@ jobs:
         run: msbuild iron.sln /p:Configuration=Release
 
       - name: Run tests
-        run: |
-          powershell -ExecutionPolicy Bypass -File .github/scripts/run-tests.ps1
+        shell: pwsh
+        run: .github/scripts/run-tests.ps1
 
       - name: Upload screenshots
         if: always()

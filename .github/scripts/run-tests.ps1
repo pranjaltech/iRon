@@ -1,10 +1,23 @@
 param(
-    [string]$Executable = "build\\Release\\iRon.exe",
+    # Path to the built executable.  The VS solution defaults to a
+    # platform/Configuration directory layout (e.g. x64\Release).
+    [string]$Executable = "x64\\Release\\iron.exe",
     [string]$Telemetry = "sample.telemetry"
 )
 
+# Resolve the executable path if the default location does not exist
+if (-not (Test-Path $Executable)) {
+    $candidate = Get-ChildItem -Path . -Recurse -Filter iron.exe |
+        Where-Object { $_.FullName -like '*Release*' } |
+        Select-Object -First 1
+    if ($candidate) { $Executable = $candidate.FullName }
+}
+
 # Helper function using PrintWindow to capture overlay window
-Add-Type @"
+# System.Drawing.Common needs to be referenced explicitly when compiling
+# the C# helper on PowerShell 7.
+Add-Type -AssemblyName System.Drawing.Common
+Add-Type -ReferencedAssemblies System.Drawing.Common -Language CSharp @"
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
