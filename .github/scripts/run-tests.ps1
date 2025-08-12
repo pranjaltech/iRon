@@ -63,9 +63,12 @@ $proc = Start-Process $Executable -ArgumentList "--test $Telemetry" -PassThru
 Start-Sleep -Seconds 5
 
 foreach($name in $overlayNames) {
-    $hwnd = (Get-Process | Where-Object { $_.MainWindowTitle -eq $name }).MainWindowHandle
-    if($hwnd -ne 0) {
-        Capture-Window -hwnd $hwnd -path "screenshots/$name.png"
+    $procInfo = Get-Process | Where-Object { $_.MainWindowTitle -eq $name } | Select-Object -First 1
+    if($procInfo) {
+        $hwnd = $procInfo.MainWindowHandle
+        if($hwnd -and $hwnd -ne [IntPtr]::Zero) {
+            Capture-Window -hwnd $hwnd -path "screenshots/$name.png"
+        }
     }
 }
 
