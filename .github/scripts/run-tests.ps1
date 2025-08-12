@@ -78,7 +78,7 @@ foreach($name in $overlayNames) {
     $ref = $refMap[$name]
     $refPath = Join-Path $PSScriptRoot "..\\..\\$ref"
     $shot = "screenshots/$name.png"
-    if(Test-Path $refPath -and Test-Path $shot) {
+    if ((Test-Path $refPath) -and (Test-Path $shot)) {
         $h1 = (Get-FileHash $refPath -Algorithm SHA256).Hash
         $h2 = (Get-FileHash $shot -Algorithm SHA256).Hash
         if($h1 -ne $h2) {
