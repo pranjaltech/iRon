@@ -32,6 +32,8 @@ public class ScreenGrab {
     static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
     [DllImport("user32.dll")]
     static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+    [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
+    static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
     [StructLayout(LayoutKind.Sequential)]
     struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
     public static Bitmap Capture(IntPtr hwnd) {
@@ -43,6 +45,9 @@ public class ScreenGrab {
             g.ReleaseHdc(hdc);
         }
         return bmp;
+    }
+    public static IntPtr Find(string title) {
+        return FindWindow(null, title);
     }
 }
 "@
@@ -63,10 +68,11 @@ $proc = Start-Process $Executable -ArgumentList "--test $Telemetry" -PassThru
 Start-Sleep -Seconds 5
 
 foreach($name in $overlayNames) {
-    $target = Get-Process | Where-Object { $_.MainWindowTitle -eq $name } | Select-Object -First 1
-    $hwnd = if ($target) { $target.MainWindowHandle } else { [IntPtr]::Zero }
+    $hwnd = [ScreenGrab]::Find($name)
     if ($hwnd -ne [IntPtr]::Zero) {
         Capture-Window -hwnd $hwnd -path "screenshots/$name.png"
+    } else {
+        Write-Host "Window not found: $name"
     }
 }
 
@@ -78,7 +84,12 @@ foreach($name in $overlayNames) {
     $ref = $refMap[$name]
     $refPath = Join-Path $PSScriptRoot "..\\..\\$ref"
     $shot = "screenshots/$name.png"
-    if ((Test-Path $refPath) -and (Test-Path $shot)) {
+    if (-not (Test-Path $shot)) {
+        Write-Host "Missing screenshot for $name"
+        $failed = $true
+        continue
+    }
+    if (Test-Path $refPath) {
         $h1 = (Get-FileHash $refPath -Algorithm SHA256).Hash
         $h2 = (Get-FileHash $shot -Algorithm SHA256).Hash
         if($h1 -ne $h2) {
