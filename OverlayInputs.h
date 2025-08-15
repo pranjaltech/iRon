@@ -35,6 +35,8 @@ class OverlayInputs : public Overlay
         OverlayInputs(Microsoft::WRL::ComPtr<ID3D11Device> d3dDevice)
             : Overlay("OverlayInputs", d3dDevice)
         {}
+        virtual bool canEnableWhileDisconnected() const override { return true; }
+
 
     protected:
 

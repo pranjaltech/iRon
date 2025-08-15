@@ -62,6 +62,8 @@ public:
         this->m_carBrandIconsLoaded = carBrandIconsLoaded;
     }
 
+        virtual bool canEnableWhileDisconnected() const override { return true; }
+
 protected:
 
     virtual void onEnable()

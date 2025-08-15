@@ -42,10 +42,8 @@ class OverlayDDU : public Overlay
             : Overlay("OverlayDDU", d3dDevice)
         {}
 
-       #ifdef _DEBUG
-       virtual bool    canEnableWhileNotDriving() const { return true; }
-       virtual bool    canEnableWhileDisconnected() const { return true; }
-       #endif
+        virtual bool    canEnableWhileNotDriving() const override { return true; }
+        virtual bool    canEnableWhileDisconnected() const override { return true; }
 
 
     protected:
@@ -526,6 +524,8 @@ class OverlayDDU : public Overlay
                         // When resetting, the lap count resets and pushes two 0.0L laps, so we skip them here
                         if (m_isValidFuelLap && usedLastLap > 0.0f) {
                             m_fuelUsedLastLaps.push_back( usedLastLap );
+        virtual bool    canEnableWhileNotDriving() const override { return true; }
+        virtual bool    canEnableWhileDisconnected() const override { return true; }
 #ifdef _DEBUG
                             printf("Pushing fuel lap: %f\n", usedLastLap);
 #endif
@@ -784,7 +784,7 @@ class OverlayDDU : public Overlay
                 if( ir_EngineWarnings.getInt() & irsdk_oilTempWarning )
                     m_brush->SetColor( warnCol );
 
-                swprintf( s, _countof(s), L"%3.0f°", temp );
+                swprintf( s, _countof(s), L"%3.0fÂ°", temp );
                 m_text.render( m_renderTarget.Get(), s, m_textFormat.Get(), m_boxOil.x0, m_boxOil.x1, m_boxOil.y0+m_boxOil.h*0.5f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
                 m_brush->SetColor( textCol );
             }
@@ -798,7 +798,7 @@ class OverlayDDU : public Overlay
                 if( ir_EngineWarnings.getInt() & irsdk_waterTempWarning )
                     m_brush->SetColor( warnCol );
 
-                swprintf( s, _countof(s), L"%3.0f°", temp );
+                swprintf( s, _countof(s), L"%3.0fÂ°", temp );
                 m_text.render( m_renderTarget.Get(), s, m_textFormat.Get(), m_boxWater.x0, m_boxWater.x1, m_boxWater.y0+m_boxWater.h*0.5f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
                 m_brush->SetColor( textCol );
             }
