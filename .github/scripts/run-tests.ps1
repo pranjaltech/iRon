@@ -65,12 +65,22 @@ $overlayNames = @('OverlayRelative','OverlayDDU','OverlayInputs','OverlayStandin
 New-Item -ItemType Directory -Force -Path screenshots | Out-Null
 
 $proc = Start-Process $Executable -ArgumentList "--test $Telemetry" -PassThru
-Start-Sleep -Seconds 5
+
+# Wait for overlay windows to appear for up to 30 seconds
+$handles = @{}
+for($i = 0; $i -lt 60 -and $handles.Count -lt $overlayNames.Count; $i++) {
+    foreach($name in $overlayNames) {
+        if (-not $handles.ContainsKey($name)) {
+            $hwnd = [ScreenGrab]::Find($name)
+            if ($hwnd -ne [IntPtr]::Zero) { $handles[$name] = $hwnd }
+        }
+    }
+    if($handles.Count -lt $overlayNames.Count) { Start-Sleep -Milliseconds 500 }
+}
 
 foreach($name in $overlayNames) {
-    $hwnd = [ScreenGrab]::Find($name)
-    if ($hwnd -ne [IntPtr]::Zero) {
-        Capture-Window -hwnd $hwnd -path "screenshots/$name.png"
+    if ($handles.ContainsKey($name)) {
+        Capture-Window -hwnd $handles[$name] -path "screenshots/$name.png"
     } else {
         Write-Host "Window not found: $name"
     }
