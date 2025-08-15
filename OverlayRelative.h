@@ -40,6 +40,8 @@ class OverlayRelative : public Overlay
         OverlayRelative(Microsoft::WRL::ComPtr<ID3D11Device> d3dDevice)
             : Overlay("OverlayRelative", d3dDevice)
         {}
+        virtual bool canEnableWhileDisconnected() const override { return true; }
+
 
     protected:
 
@@ -393,7 +395,7 @@ class OverlayRelative : public Overlay
 
                 m_brush->SetColor(float4(1, 1, 1, 0.4f));
                 m_renderTarget->DrawLine(float2(0, ybottom), float2((float)m_width, ybottom), m_brush.Get());
-                swprintf(s, _countof(s), L"SoF: %d      Track Temp: %.1f°%c      Session end: %d:%02d:%02d       Laps: %d/%d", ir_session.sof, trackTemp, tempUnit, hours, mins, secs, laps, remainingLaps);
+                swprintf(s, _countof(s), L"SoF: %d      Track Temp: %.1fÂ°%c      Session end: %d:%02d:%02d       Laps: %d/%d", ir_session.sof, trackTemp, tempUnit, hours, mins, secs, laps, remainingLaps);
                 y = m_height - (m_height - ybottom) / 2;
                 m_brush->SetColor(headerCol);
                 m_text.render(m_renderTarget.Get(), s, m_textFormat.Get(), xoff, (float)m_width - 2 * xoff, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
